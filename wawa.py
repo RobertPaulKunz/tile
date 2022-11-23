@@ -1,6 +1,6 @@
 # git stuff
 # Import Module
-from tkinter import *
+#from tkinter import *
 import RPi.GPIO as GPIO
 import time
 from openpyxl import Workbook, load_workbook
@@ -56,36 +56,36 @@ sleep = 0.01
 
  
 # Create Object
-win = Tk()
+# win = Tk()
  
 # Add Title
-win.title('NVMG')
+# win.title('NVMG')
  
 # Add Geometry
 # win.geometry("500x300")
  
 # Keep track of the button state on/off
-global is_on
-is_on = False
+# global is_on
+# is_on = False
  
 # Define our switch function
-running = False  # Global flag
+# running = False  # Global flag
 
-def scanning():
-    if running:  # Only do this if the Stop button has not been clicked
-        polarity_swap()
-    # After 1 second, call scanning again (create a recursive loop)
-    win.after(1000, scanning)
+# def scanning():
+#     if running:  # Only do this if the Stop button has not been clicked
+#         polarity_swap()
+#     # After 1 second, call scanning again (create a recursive loop)
+#     win.after(1000, scanning)
 
-def start():
-    """Enable scanning by setting the global flag to True."""
-    global running
-    running = True
-    
-def stop():
-    """Stop scanning by setting the global flag to False."""
-    global running
-    running = False    
+# def start():
+#     """Enable scanning by setting the global flag to True."""
+#     global running
+#     running = True
+#     
+# def stop():
+#     """Stop scanning by setting the global flag to False."""
+#     global running
+#     running = False    
 
 def inject_pattern():
 #     i = 0
@@ -113,12 +113,12 @@ def inject_pattern():
     HV507_store_data_in_latches()
     return
 
-def close():
-    print("entering close() function")
-#     GPIO.cleanup()
-    win.destroy()
-    print("exiting close() function")
-    return
+# def close():
+#     print("entering close() function")
+# #     GPIO.cleanup()
+#     win.destroy()
+#     print("exiting close() function")
+#     return
     
 def status():
     print("##### Status #####")
@@ -211,15 +211,17 @@ def HV507_store_data_in_latches_not():
 def polarity_swap():
 #     print("entering polarity_swap() function")
 #     time.sleep(sleep)
-    global polarity
-    polarity = (1 - polarity)
-    GPIO.output(NPol, polarity)
+    global polarity    
     if polarity == 1:
+        GPIO.output(NPol, 1)
         HV_400v()
-#         print("exiting polarity_swap() function with 300V and polarity of ", polarity)
+        polarity = (1 - polarity)
+        print("exiting polarity_swap() function with 300V and polarity of ", polarity)
         return
+    GPIO.output(NPol, 0)
     HV_100v()
-#     print("exiting polarity_swap() function with 100V and polarity of ", polarity)
+    polarity = (1 - polarity) 
+    print("exiting polarity_swap() function with 100V and polarity of ", polarity)
     return
 
 def HV_400v():
@@ -267,9 +269,10 @@ def power_up():
     return
 
 def power_down():
-    print("entering power_down function")    
+    print("entering power_down function")
+    picos_off()    
     discharge()
-#     H_Bridge_float()
+    H_Bridge_float()
     print("exiting power_down function")
     return
 
@@ -320,20 +323,27 @@ def discharge():
     print("exiting discharge function")
     return
 
+power_up()
+inject_pattern()
+polarity_swap()
+time.sleep(10)
+polarity_swap()
+time.sleep(10)
+polarity_swap()
 ######################################################################################
 ###################################### Widgets ######################################
 ######################################################################################
-powerUpButton = Button(win, text = "Power Up", command = power_up)
-powerUpButton.pack()
-
-powerDownButton = Button(win, text = "Power Down", command = power_down)
-powerDownButton.pack()
-
-blankDisplayButton = Button(win, text = "Blank Display", command = blank_display)
-blankDisplayButton.pack()
-
-injectpatternButton = Button(win, text = "Inject Pattern", command = inject_pattern)
-injectpatternButton.pack()
+# powerUpButton = Button(win, text = "Power Up", command = power_up)
+# powerUpButton.pack()
+# 
+# powerDownButton = Button(win, text = "Power Down", command = power_down)
+# powerDownButton.pack()
+# 
+# blankDisplayButton = Button(win, text = "Blank Display", command = blank_display)
+# blankDisplayButton.pack()
+# 
+# injectpatternButton = Button(win, text = "Inject Pattern", command = inject_pattern)
+# injectpatternButton.pack()
 
 # allOnButton = Button(win, text = "All On", command = HV507_all_on)
 # allOnButton.pack()
@@ -344,42 +354,43 @@ injectpatternButton.pack()
 # invertModeButton = Button(win, text = "Invert Mode", command = HV507_invert_mode)
 # invertModeButton.pack()
 
-loadShiftRegisterLowButton = Button(win, text = "Load Shift Register Low", command = HV507_load_shift_register_low)
-loadShiftRegisterLowButton.pack()
+# loadShiftRegisterLowButton = Button(win, text = "Load Shift Register Low", command = HV507_load_shift_register_low)
+# loadShiftRegisterLowButton.pack()
+# 
+# loadShiftRegisterHighButton = Button(win, text = "Load Shift Register High", command = HV507_load_shift_register_high)
+# loadShiftRegisterHighButton.pack()
+# 
+# storeDataInLatchesButton = Button(win, text = "Store Data In Latches", command = HV507_store_data_in_latches)
+# storeDataInLatchesButton.pack()
 
-loadShiftRegisterHighButton = Button(win, text = "Load Shift Register High", command = HV507_load_shift_register_high)
-loadShiftRegisterHighButton.pack()
-
-storeDataInLatchesButton = Button(win, text = "Store Data In Latches", command = HV507_store_data_in_latches)
-storeDataInLatchesButton.pack()
-
-storeDataInLatchesNotButton = Button(win, text = "Store Data In Latches NOT", command = HV507_store_data_in_latches_not)
-storeDataInLatchesNotButton.pack()
-
-statusButton = Button(win, text = "Status", command = status)
-statusButton.pack()
-
-polaritySwapButton = Button(win, text = "Polarity_Swap", command = polarity_swap)
-polaritySwapButton.pack()
+# storeDataInLatchesNotButton = Button(win, text = "Store Data In Latches NOT", command = HV507_store_data_in_latches_not)
+# storeDataInLatchesNotButton.pack()
+# 
+# statusButton = Button(win, text = "Status", command = status)
+# statusButton.pack()
+# 
+# polaritySwapButton = Button(win, text = "Polarity_Swap", command = polarity_swap)
+# polaritySwapButton.pack()
 
 # oscilateButton = Button(win, text = "Oscilate", command = oscilate)
 # oscilateButton.pack()
  
-startButton = Button(win, text="Start Polarity Swap", command=start)
-startButton.pack()
+# startButton = Button(win, text="Start Polarity Swap", command=start)
+# startButton.pack()
+# 
+# stopButton = Button(win, text="Stop Polarity Swap", command=stop)
+# stopButton.pack()
+# 
+# dischargeButton = Button(win, text="Discharge", command=discharge)
+# dischargeButton.pack()
 
-stopButton = Button(win, text="Stop Polarity Swap", command=stop)
-stopButton.pack()
-
-dischargeButton = Button(win, text="Discharge", command=discharge)
-dischargeButton.pack()
-
-exitButton = Button(win, text = "Exit Program", command = close)
-exitButton.pack()
-
-win.after(1000, scanning)  # After 1 second, call scanning
-
-win.protocol("WM_DELETE_WINDOW", close) # exit cleanly
-
-win.mainloop() # loop forever
-
+# exitButton = Button(win, text = "Exit Program", command = close)
+# exitButton.pack()
+# 
+# win.after(1000, scanning)  # After 1 second, call scanning
+# 
+# win.protocol("WM_DELETE_WINDOW", close) # exit cleanly
+# 
+# win.mainloop() # loop forever
+# 
+# 
