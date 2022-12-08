@@ -4,15 +4,11 @@ import numpy as np
 from tkinter import *
 import RPi.GPIO as GPIO
 import time
-from openpyxl import Workbook, load_workbook
-from openpyxl.utils import get_column_letter
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 # GPIO.cleanup()
 
-wb = load_workbook('DAK.xlsx')
-ws = wb['Sheet2']
 
 ## Hardware ##
 data = 2 #  26 DIOA on HV507, 14 SER on 74HC595 - Red
@@ -53,41 +49,7 @@ size = 256
 polarity = 1
 RC_time_constant = 1 # delay for capcitor RC time constant
 sleep = 0.01
-#bit = 1
-
- 
-# Create Object
-win = Tk()
- 
-# Add Title
-win.title('NVMG')
- 
-# Add Geometry
-# win.geometry("500x300")
- 
-# Keep track of the button state on/off
-global is_on
-is_on = False
- 
-# Define our switch function
-running = False  # Global flag
-
-def scanning():
-    if running:  # Only do this if the Stop button has not been clicked
-        polarity_swap()
-    # After 1 second, call scanning again (create a recursive loop)
-    win.after(1000, scanning)
-
-def start():
-    """Enable scanning by setting the global flag to True."""
-    global running
-    running = True
-    
-def stop():
-    """Stop scanning by setting the global flag to False."""
-    global running
-    running = False
-    
+bit = 1
 
 display = np.array([
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -102,8 +64,31 @@ display = np.array([
     [0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
     [0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],])
+
+ 
+def scroll_right():    
+    global display
+    display = np.roll(display,1, axis=1)
+#     HV507_store_data_in_latches()
+#     return display
     
-def inject_pattern():
+def start_scrolling():
+    global scrolling
+    scrolling = True
+
+def stop_scrolling():
+    global scrolling
+    scrolling = False
+
+def scrolling():
+    if scrolling:
+        print('scroll right')
+        scroll_right()
+    win.after(1000, scrolling)
+   
+
+
+def inject_numpy():
     for row in range(12,16):
         for col in range(0,16):
 #             val = int(display[row,col])
@@ -127,35 +112,7 @@ def inject_pattern():
 #             print("row = ", row," col = ", col, " val = ", val)
     HV507_store_data_in_latches()
     return
-
-def scroll_right():    
-    global display
-    display = np.roll(display,1, axis=1)
-#     HV507_store_data_in_latches()
-#     return display
-    
-def start_scrolling():
-    global scrolling
-    scrolling = True
-
-def stop_scrolling():
-    global scrolling
-    scrolling = False
-
-def scrolling():
-    if scrolling:
-        print('scroll right')
-        scroll_right()
-    win.after(1000, scrolling)
-
-
-def close():
-    print("entering close() function")
-#     GPIO.cleanup()
-    win.destroy()
-    print("exiting close() function")
-    return
-    
+   
 def status():
     print("##### Status #####")
     print("data = ", GPIO.input(data))
@@ -171,32 +128,6 @@ def status():
     print("DISCHARGE100V = ", GPIO.input(DISCHARGE100V))
     print("DISCHARGE300V = ", GPIO.input(DISCHARGE300V))
     print("##################")
-    return
-
-def blank_display():
-    for x in range(size):
-        HV507_load_shift_register_low()
-    HV507_store_data_in_latches()
-    return
-    
-######################################################################################
-########################### HV507 Function Table Functions ###########################
-######################################################################################
-    
-def HV507_all_on():    
-    GPIO.output(NBL, 0)
-    GPIO.output(NPol, 0)
-    return
-
-def HV507_all_off():    
-    GPIO.output(NBL, 0)
-    GPIO.output(NPol, 1)
-    return
-
-def HV507_invert_mode():
-    GPIO.output(NLE, 0)
-    GPIO.output(NBL, 1)
-    GPIO.output(NPol, 0)
     return
 
 def HV507_load_shift_register(bit):
@@ -217,8 +148,18 @@ def HV507_load_shift_register_low():
     GPIO.output(CLK, 0)
     return
 
-def HV507_load_shift_register_high():
-    GPIO.output(data, 1)
+def blank_display():
+    for x in range(size):
+        HV507_load_shift_register_low()
+    HV507_store_data_in_latches()
+    return
+    
+######################################################################################
+########################### HV507 Function Table Functions ###########################
+######################################################################################
+    
+def HV507_load_shift_register(bit):
+    GPIO.output(data, bit)
     GPIO.output(NLE, 0)
     GPIO.output(NBL, 1)
     GPIO.output(NPol, 1)
@@ -226,16 +167,10 @@ def HV507_load_shift_register_high():
     GPIO.output(CLK, 0)
     return
 
+
 def HV507_store_data_in_latches():    
     GPIO.output(NBL, 1)
     GPIO.output(NPol, 1)
-    GPIO.output(NLE, 0)
-    GPIO.output(NLE, 1) 
-    return
-
-def HV507_store_data_in_latches_not():    
-    GPIO.output(NBL, 1)
-    GPIO.output(NPol, 0)
     GPIO.output(NLE, 0)
     GPIO.output(NLE, 1) 
     return
@@ -356,66 +291,4 @@ def discharge():
     print("exiting discharge function")
     return
 
-######################################################################################
-###################################### Widgets ######################################
-######################################################################################
-powerUpButton = Button(win, text = "Power Up", command = power_up)
-powerUpButton.pack()
-
-powerDownButton = Button(win, text = "Power Down", command = power_down)
-powerDownButton.pack()
-
-blankDisplayButton = Button(win, text = "Blank Display", command = blank_display)
-blankDisplayButton.pack()
-
-injectpatternButton = Button(win, text = "Inject Pattern", command = inject_pattern)
-injectpatternButton.pack()
-
-# allOnButton = Button(win, text = "All On", command = HV507_all_on)
-# allOnButton.pack()
-# 
-# allOffButton = Button(win, text = "All Off", command = HV507_all_off)
-# allOffButton.pack()
-
-# invertModeButton = Button(win, text = "Invert Mode", command = HV507_invert_mode)
-# invertModeButton.pack()
-
-loadShiftRegisterLowButton = Button(win, text = "Load Shift Register Low", command = HV507_load_shift_register_low)
-loadShiftRegisterLowButton.pack()
-
-loadShiftRegisterHighButton = Button(win, text = "Load Shift Register High", command = HV507_load_shift_register_high)
-loadShiftRegisterHighButton.pack()
-
-storeDataInLatchesButton = Button(win, text = "Store Data In Latches", command = HV507_store_data_in_latches)
-storeDataInLatchesButton.pack()
-
-storeDataInLatchesNotButton = Button(win, text = "Store Data In Latches NOT", command = HV507_store_data_in_latches_not)
-storeDataInLatchesNotButton.pack()
-
-statusButton = Button(win, text = "Status", command = status)
-statusButton.pack()
-
-polaritySwapButton = Button(win, text = "Polarity_Swap", command = polarity_swap)
-polaritySwapButton.pack()
-
-# oscilateButton = Button(win, text = "Oscilate", command = oscilate)
-# oscilateButton.pack()
- 
-startButton = Button(win, text="Start Polarity Swap", command=start)
-startButton.pack()
-
-stopButton = Button(win, text="Stop Polarity Swap", command=stop)
-stopButton.pack()
-
-dischargeButton = Button(win, text="Discharge", command=discharge)
-dischargeButton.pack()
-
-exitButton = Button(win, text = "Exit Program", command = close)
-exitButton.pack()
-
-win.after(1000, scanning)  # After 1 second, call scanning
-
-win.protocol("WM_DELETE_WINDOW", close) # exit cleanly
-
-win.mainloop() # loop forever
 
