@@ -1,19 +1,19 @@
 # git stuff
 # Import Module
 import numpy as np
-import characters_8x8x4 as block
-from tkinter import *
+import characters_8x8x4_inverse as block
+# from tkinter import *
 import RPi.GPIO as GPIO
 import time
-from openpyxl import Workbook, load_workbook
-from openpyxl.utils import get_column_letter
+# from openpyxl import Workbook, load_workbook
+# from openpyxl.utils import get_column_letter
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 # GPIO.cleanup()
 
-wb = load_workbook('DAK.xlsx')
-ws = wb['Sheet2']
+# wb = load_workbook('DAK.xlsx')
+# ws = wb['Sheet2']
 
 ## Hardware ##
 data = 2 #  26 DIOA on HV507, 14 SER on 74HC595 - Red
@@ -54,14 +54,15 @@ size = 256
 polarity = 1
 RC_time_constant = 1 # delay for capcitor RC time constant
 sleep = 0.01
+rest = 2
 #bit = 1
 
  
 # Create Object
-win = Tk()
+# win = Tk()
  
 # Add Title
-win.title('NVMG')
+# win.title('NVMG')
  
 # Add Geometry
 # win.geometry("500x300")
@@ -156,50 +157,51 @@ def scrolling():
     
 def display_letter():
     global display
-    display = block.ABCD 
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.EFGH 
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.IJKL
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.MNOP 
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.QRST
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.UVWX
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.YZ01 
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.n2345
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1)
-    display = block.n6789
-    inject_pattern()
-    polarity_swap()
-    time.sleep(1) 
+    for x in range(2):
+        display = block.ABCD 
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.EFGH 
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.IJKL
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.MNOP 
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.QRST
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.UVWX
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.YZ01 
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.n2345
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest)
+        display = block.n6789
+        inject_pattern()
+        polarity_swap()
+        time.sleep(rest) 
 
 
-def close():
-    print("entering close() function")
-#     GPIO.cleanup()
-    win.destroy()
-    print("exiting close() function")
-    return
+# def close():
+#     print("entering close() function")
+# #     GPIO.cleanup()
+#     win.destroy()
+#     print("exiting close() function")
+#     return
     
 def status():
     print("##### Status #####")
@@ -401,23 +403,29 @@ def discharge():
     print("exiting discharge function")
     return
 
+power_up()
+display_letter()
+blank_display()
+discharge()
+
+
 ######################################################################################
 ###################################### Widgets ######################################
 ######################################################################################
-powerUpButton = Button(win, text = "Power Up", command = power_up)
-powerUpButton.pack()
+# powerUpButton = Button(win, text = "Power Up", command = power_up)
+# powerUpButton.pack()
 
-powerDownButton = Button(win, text = "Power Down", command = power_down)
-powerDownButton.pack()
-
-blankDisplayButton = Button(win, text = "Blank Display", command = blank_display)
-blankDisplayButton.pack()
-
-injectpatternButton = Button(win, text = "Inject Pattern", command = inject_pattern)
-injectpatternButton.pack()
-
-displayLetterButton = Button(win, text = "Display Letters", command = display_letter)
-displayLetterButton.pack()
+# powerDownButton = Button(win, text = "Power Down", command = power_down)
+# powerDownButton.pack()
+# 
+# blankDisplayButton = Button(win, text = "Blank Display", command = blank_display)
+# blankDisplayButton.pack()
+# 
+# injectpatternButton = Button(win, text = "Inject Pattern", command = inject_pattern)
+# injectpatternButton.pack()
+# 
+# displayLetterButton = Button(win, text = "Display Letters", command = display_letter)
+# displayLetterButton.pack()
 
 # allOnButton = Button(win, text = "All On", command = HV507_all_on)
 # allOnButton.pack()
@@ -428,42 +436,42 @@ displayLetterButton.pack()
 # invertModeButton = Button(win, text = "Invert Mode", command = HV507_invert_mode)
 # invertModeButton.pack()
 
-loadShiftRegisterLowButton = Button(win, text = "Load Shift Register Low", command = HV507_load_shift_register_low)
-loadShiftRegisterLowButton.pack()
+# loadShiftRegisterLowButton = Button(win, text = "Load Shift Register Low", command = HV507_load_shift_register_low)
+# loadShiftRegisterLowButton.pack()
 
-loadShiftRegisterHighButton = Button(win, text = "Load Shift Register High", command = HV507_load_shift_register_high)
-loadShiftRegisterHighButton.pack()
+# loadShiftRegisterHighButton = Button(win, text = "Load Shift Register High", command = HV507_load_shift_register_high)
+# loadShiftRegisterHighButton.pack()
+# 
+# storeDataInLatchesButton = Button(win, text = "Store Data In Latches", command = HV507_store_data_in_latches)
+# storeDataInLatchesButton.pack()
 
-storeDataInLatchesButton = Button(win, text = "Store Data In Latches", command = HV507_store_data_in_latches)
-storeDataInLatchesButton.pack()
-
-storeDataInLatchesNotButton = Button(win, text = "Store Data In Latches NOT", command = HV507_store_data_in_latches_not)
-storeDataInLatchesNotButton.pack()
-
-statusButton = Button(win, text = "Status", command = status)
-statusButton.pack()
-
-polaritySwapButton = Button(win, text = "Polarity_Swap", command = polarity_swap)
-polaritySwapButton.pack()
+# storeDataInLatchesNotButton = Button(win, text = "Store Data In Latches NOT", command = HV507_store_data_in_latches_not)
+# storeDataInLatchesNotButton.pack()
+# 
+# statusButton = Button(win, text = "Status", command = status)
+# statusButton.pack()
+# 
+# polaritySwapButton = Button(win, text = "Polarity_Swap", command = polarity_swap)
+# polaritySwapButton.pack()
 
 # oscilateButton = Button(win, text = "Oscilate", command = oscilate)
 # oscilateButton.pack()
  
-startButton = Button(win, text="Start Polarity Swap", command=start)
-startButton.pack()
-
-stopButton = Button(win, text="Stop Polarity Swap", command=stop)
-stopButton.pack()
-
-dischargeButton = Button(win, text="Discharge", command=discharge)
-dischargeButton.pack()
-
-exitButton = Button(win, text = "Exit Program", command = close)
-exitButton.pack()
-
-win.after(1000, scanning)  # After 1 second, call scanning
-
-win.protocol("WM_DELETE_WINDOW", close) # exit cleanly
-
-win.mainloop() # loop forever
+# startButton = Button(win, text="Start Polarity Swap", command=start)
+# startButton.pack()
+# 
+# stopButton = Button(win, text="Stop Polarity Swap", command=stop)
+# stopButton.pack()
+# 
+# dischargeButton = Button(win, text="Discharge", command=discharge)
+# dischargeButton.pack()
+# 
+# exitButton = Button(win, text = "Exit Program", command = close)
+# exitButton.pack()
+# 
+# win.after(1000, scanning)  # After 1 second, call scanning
+# 
+# win.protocol("WM_DELETE_WINDOW", close) # exit cleanly
+# 
+# win.mainloop() # loop forever
 

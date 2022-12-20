@@ -83,7 +83,7 @@ def inject_pattern():
     
 def display_letter():
     global display
-    while 1:
+    for x in range(3):
         display = block.ABCD 
         inject_pattern()
         polarity_swap()
@@ -261,8 +261,9 @@ def picos_off():
 
 def power_up():
     print("entering power_up function")
-    H_Bridge_float()
-    picos_on()    
+#     H_Bridge_float()
+    picos_on()
+    time.sleep(5)
     HV_400v()
     print("exiting power_up function")
     return
@@ -323,4 +324,8 @@ def discharge():
 
 power_up()
 display_letter()
+HV507_all_off()
+discharge()
+polarity_swap()
+polarity_swap()
 
